@@ -33,25 +33,25 @@ dependencies {
 ext {
     // Where you will see your artifact in Bintray's web interface
     // The "bintrayName" should match the name of the Bintray repro.
-    bintrayRepo = 'romanpulov.library.common'
+    bintrayRepo = 'maven'
     bintrayName = 'romanpulov-library-common'
 
     // Maven metadata
     publishedGroupId = 'com.romanpulov.library.common'
-    libraryName = 'library-common'
+    libraryName = 'library'
     // Save yourself a head ache, and set this equal to the name of the Android Studio library
     // module. The artifact name needs to match the name of the library.
-    artifact = 'library-common'
+    artifact = 'library'
 
     libraryDescription = 'Roman Pulov common library for Android'
-    libraryVersion = '1.0.0-SNAPSHOT'
+    libraryVersion = '1.0.0'
 
     developerId = 'romanpulov'
     developerName = 'Roman Pulov'
     developerEmail = 'roman.pulov@at.com'
 
-    siteUrl = 'https://github.com/MrZeRo2000/libraryandroidtest-android'
-    gitUrl = 'https://github.com/MrZeRo2000/libraryandroidtest-android.git'
+    siteUrl = 'https://github.com/MrZeRo2000/library-common-android'
+    gitUrl = 'https://github.com/MrZeRo2000/library-common-android.git'
 
     licenseName = 'Apache License, Version 2.0'
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
