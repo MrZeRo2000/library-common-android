@@ -1,0 +1,63 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:22.2.1'
+    testCompile 'junit:junit:4.12'
+}
+
+ext {
+    // Where you will see your artifact in Bintray's web interface
+    // The "bintrayName" should match the name of the Bintray repro.
+    bintrayRepo = 'romanpulov.library.common'
+    bintrayName = 'romanpulov-library-common'
+
+    // Maven metadata
+    publishedGroupId = 'com.romanpulov.library.common'
+    libraryName = 'library-common'
+    // Save yourself a head ache, and set this equal to the name of the Android Studio library
+    // module. The artifact name needs to match the name of the library.
+    artifact = 'library-common'
+
+    libraryDescription = 'Roman Pulov common library for Android'
+    libraryVersion = '1.0.0-SNAPSHOT'
+
+    developerId = 'romanpulov'
+    developerName = 'Roman Pulov'
+    developerEmail = 'roman.pulov@at.com'
+
+    siteUrl = 'https://github.com/MrZeRo2000/libraryandroidtest-android'
+    gitUrl = 'https://github.com/MrZeRo2000/libraryandroidtest-android.git'
+
+    licenseName = 'Apache License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+
+    allLicenses = ["Apache-2.0"]
+}
+
+apply from: 'https://raw.githubusercontent.com/MrZeRo2000/JCenter/master/installv1.gradle'
+apply from: 'https://raw.githubusercontent.com/MrZeRo2000/JCenter/master/bintrayv1.gradle'
