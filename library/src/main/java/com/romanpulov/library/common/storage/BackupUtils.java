@@ -1,6 +1,5 @@
 package com.romanpulov.library.common.storage;
 
-import android.content.Context;
 import android.os.Environment;
 
 import com.romanpulov.library.common.io.FileUtils;
@@ -9,40 +8,38 @@ import com.romanpulov.library.common.io.ZipFileUtils;
 import java.io.File;
 
 /**
- * Backup and restore for database
+ * Backup and restore for file
  * Created by romanpulov on 19.12.2016.
  */
 
 public class BackupUtils {
-    private final Context mContext;
-    private final String mDatabaseName;
-    private final String mlocalBackupFolderName;
-    private final String mlocalBackupFileName;
+    private final String mDataFileName;
+    private final String mLocalBackupFolderName;
+    private final String mLocalBackupFileName;
 
-    public String getLocalBackupFolderName() {
-        return Environment.getExternalStorageDirectory().toString() + "/" + mlocalBackupFolderName + "/";
+    private String getLocalBackupFolderName() {
+        return Environment.getExternalStorageDirectory().toString() + "/" + mLocalBackupFolderName + "/";
     }
 
-    public String getLocalBackupFileName() {
-        return getLocalBackupFolderName() + mlocalBackupFileName;
+    private String getLocalBackupFileName() {
+        return getLocalBackupFolderName() + mLocalBackupFileName;
     }
 
-    public String getLocalBackupZIPFileName() {
+    private String getLocalBackupZIPFileName() {
         return ZipFileUtils.getZipFileName(getLocalBackupFileName());
     }
 
-    public BackupUtils(Context context, String databaseName, String localBackupFolderName, String localBackupFileName) {
-        mContext = context;
-        mDatabaseName = databaseName;
-        mlocalBackupFolderName = localBackupFolderName;
-        mlocalBackupFileName = localBackupFileName;
+    public BackupUtils(String dataFileName, String localBackupFolderName, String localBackupFileName) {
+        mDataFileName = dataFileName;
+        mLocalBackupFolderName = localBackupFolderName;
+        mLocalBackupFileName = localBackupFileName;
     }
 
-    private String getDatabasePath() {
-        return mContext.getDatabasePath(mDatabaseName).toString();
-    }
-
-    public String createLocalBackup() {
+    /**
+     * Created local backup
+     * @return archived file name if successful
+     */
+    private String createLocalBackup() {
         //init backup folder
         File backupFolder = new File(getLocalBackupFolderName());
         if (!backupFolder.exists()) {
@@ -52,13 +49,17 @@ public class BackupUtils {
         }
 
         //write file
-        if (!FileUtils.copy(getDatabasePath(), getLocalBackupFileName()))
+        if (!FileUtils.copy(mDataFileName, getLocalBackupFileName()))
             return null;
 
         //archive file
-        return ZipFileUtils.zipFile(getLocalBackupFolderName(), mlocalBackupFileName);
+        return ZipFileUtils.zipFile(getLocalBackupFolderName(), mLocalBackupFileName);
     }
 
+    /**
+     * Restores backup from local archive
+     * @return restored file name if successful
+     */
     public String restoreLocalBackup() {
         String localBackupFileName = getLocalBackupFileName();
 
@@ -68,7 +69,7 @@ public class BackupUtils {
             return null;
 
         //extract backup
-        if (!ZipFileUtils.unZipFile(getLocalBackupFolderName(), ZipFileUtils.getZipFileName(mlocalBackupFileName)))
+        if (!ZipFileUtils.unZipFile(getLocalBackupFolderName(), ZipFileUtils.getZipFileName(mLocalBackupFileName)))
             return null;
 
         //check restored file availability
@@ -77,7 +78,7 @@ public class BackupUtils {
             return null;
 
         //replace database file
-        if (!FileUtils.copy(localBackupFileName, getDatabasePath()))
+        if (!FileUtils.copy(localBackupFileName, mDataFileName))
             return null;
 
         //delete and ignore any errors
@@ -86,6 +87,10 @@ public class BackupUtils {
         return localBackupFileName;
     }
 
+    /**
+     * Created rolling backup
+     * @return archived file if successful
+     */
     public String createRollingLocalBackup() {
         //get file names
         String fileName = getLocalBackupFileName();
