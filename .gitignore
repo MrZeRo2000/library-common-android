@@ -6,3 +6,6 @@
 /build
 /captures
 .externalNativeBuild
+
+# test data
+/data
