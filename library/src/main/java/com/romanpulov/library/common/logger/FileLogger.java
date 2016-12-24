@@ -11,6 +11,11 @@ import java.io.PrintWriter;
 
 public class FileLogger extends AbstractLogger {
     private final String mFileName;
+
+    public String getFileName() {
+        return mFileName;
+    }
+
     private PrintWriter mPrintWriter;
 
     public FileLogger(String fileName) {
