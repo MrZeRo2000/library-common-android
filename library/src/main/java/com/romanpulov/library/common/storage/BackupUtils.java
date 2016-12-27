@@ -17,11 +17,19 @@ public class BackupUtils {
     private final String mLocalBackupFolderName;
     private final String mLocalBackupFileName;
 
-    private String getLocalBackupFolderName() {
+    /**
+     * Returns local backup folder name with ending slash
+     * @return local backup folder name
+     */
+    public String getLocalBackupFolderName() {
         return Environment.getExternalStorageDirectory().toString() + "/" + mLocalBackupFolderName + "/";
     }
 
-    private String getLocalBackupFileName() {
+    /**
+     * Returns local backup file name
+     * @return file name
+     */
+    public String getLocalBackupFileName() {
         return getLocalBackupFolderName() + mLocalBackupFileName;
     }
 
