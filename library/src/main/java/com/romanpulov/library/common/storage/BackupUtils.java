@@ -56,6 +56,8 @@ public class BackupUtils {
      * @return archived file name if successful
      */
     private String createLocalBackup() {
+        String localBackupFileName = getLocalBackupFileName();
+
         //init backup folder
         File backupFolder = new File(getLocalBackupFolderName());
         if (!backupFolder.exists()) {
@@ -65,8 +67,10 @@ public class BackupUtils {
         }
 
         //write file
-        if (!FileUtils.copy(mDataFileName, getLocalBackupFileName()))
-            return null;
+        if (!localBackupFileName.equals(mDataFileName)) {
+            if (!FileUtils.copy(mDataFileName, localBackupFileName))
+                return null;
+        }
 
         //archive file
         return ZipFileUtils.zipFile(getLocalBackupFolderName(), mLocalBackupFileName);
@@ -93,12 +97,14 @@ public class BackupUtils {
         if (!file.exists())
             return null;
 
-        //replace database file
-        if (!FileUtils.copy(localBackupFileName, mDataFileName))
-            return null;
+        if (!localBackupFileName.equals(mDataFileName)) {
+            //replace source file
+            if (!FileUtils.copy(localBackupFileName, mDataFileName))
+                return null;
 
-        //delete and ignore any errors
-        file.delete();
+            //delete and ignore any errors
+            file.delete();
+        }
 
         return localBackupFileName;
     }
