@@ -6,6 +6,7 @@ import com.romanpulov.library.common.io.FileUtils;
 import com.romanpulov.library.common.io.ZipFileUtils;
 
 import java.io.File;
+import java.io.FileFilter;
 
 /**
  * Backup and restore for file
@@ -131,5 +132,20 @@ public class BackupUtils {
             FileUtils.delete(fileName);
 
         return result;
+    }
+
+    /**
+     * Returns backup files from local backup folder
+     * @return File list
+     */
+    public File[] getLocalBackupFiles() {
+        File folder = new File(getLocalBackupFolderName());
+        return folder.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                String lowAbsolutePath = pathname.getAbsolutePath().toLowerCase();
+                return lowAbsolutePath.endsWith(ZipFileUtils.ZIP_EXT) || lowAbsolutePath.matches("\\S*" +ZipFileUtils.ZIP_EXT + "." + FileUtils.BAK_EXT + "" + "[0-9]{2}");
+            }
+        });
     }
 }

@@ -16,7 +16,7 @@ import java.util.zip.ZipOutputStream;
  */
 
 public class ZipFileUtils {
-    private static String ZIP_EXT = ".zip";
+    public static String ZIP_EXT = ".zip";
 
     public static String getZipFileName(String fileName){
         int extensionPos = fileName.lastIndexOf(".");

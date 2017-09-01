@@ -14,10 +14,11 @@ import java.util.Locale;
  */
 
 public class FileUtils {
+    public static final String BAK_EXT = "bak";
     private static final int FILE_BUF_LEN = 1024;
     private static final String FILE_EXTENSION = ".";
     private static final String FILE_TEMP_EXTENSION = ".temp";
-    private static final String FILE_COPY_FORMAT = "%s.bak%02d";
+    private static final String FILE_COPY_FORMAT = "%s." + BAK_EXT + "%02d";
 
     private static int mFileKeepCopiesCount = 5;
 
