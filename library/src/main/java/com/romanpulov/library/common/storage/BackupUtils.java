@@ -1,7 +1,5 @@
 package com.romanpulov.library.common.storage;
 
-import android.os.Environment;
-
 import com.romanpulov.library.common.io.FileUtils;
 import com.romanpulov.library.common.io.ZipFileUtils;
 
@@ -15,41 +13,44 @@ import java.io.FileFilter;
 
 public class BackupUtils {
     private final String mDataFileName;
-    private final String mLocalBackupFolderName;
-    private final String mLocalBackupFileName;
+    private final String mBackupFolderName;
+    private final String mBackupFileName;
 
     /**
      * Returns backup folder name from given folder name with ending slash
      * @param folderName input folder name
      * @return backup folder name
      */
-    public static String getLocalBackupFolderName(String folderName) {
-        return Environment.getExternalStorageDirectory().toString() + "/" + folderName + "/";
+    public static String getBackupFolderName(String folderName) {
+        if (folderName.endsWith(File.separator))
+            return folderName;
+        else
+            return folderName + File.separator;
     }
     /**
-     * Returns local backup folder name with ending slash
-     * @return local backup folder name
+     * Returns backup folder name with ending slash
+     * @return backup folder name
      */
-    private String getLocalBackupFolderName() {
-        return getLocalBackupFolderName(mLocalBackupFolderName);
+    private String getBackupFolderName() {
+        return getBackupFolderName(mBackupFolderName);
     }
 
     /**
-     * Returns local backup file name
+     * Returns backup file name
      * @return file name
      */
-    private String getLocalBackupFileName() {
-        return getLocalBackupFolderName() + mLocalBackupFileName;
+    private String getBackupFileName() {
+        return getBackupFolderName() + mBackupFileName;
     }
 
-    private String getLocalBackupZIPFileName() {
-        return ZipFileUtils.getZipFileName(getLocalBackupFileName());
+    private String getBackupZIPFileName() {
+        return ZipFileUtils.getZipFileName(getBackupFileName());
     }
 
-    public BackupUtils(String dataFileName, String localBackupFolderName, String localBackupFileName) {
+    public BackupUtils(String dataFileName, String backupFolderName, String backupFileName) {
         mDataFileName = dataFileName;
-        mLocalBackupFolderName = localBackupFolderName;
-        mLocalBackupFileName = localBackupFileName;
+        mBackupFolderName = backupFolderName;
+        mBackupFileName = backupFileName;
     }
 
     /**
@@ -57,10 +58,10 @@ public class BackupUtils {
      * @return archived file name if successful
      */
     private String createLocalBackup() {
-        String localBackupFileName = getLocalBackupFileName();
+        String backupFileName = getBackupFileName();
 
         //init backup folder
-        File backupFolder = new File(getLocalBackupFolderName());
+        File backupFolder = new File(getBackupFolderName());
         if (!backupFolder.exists()) {
             if (!backupFolder.mkdir()) {
                 return null;
@@ -68,46 +69,46 @@ public class BackupUtils {
         }
 
         //write file
-        if (!localBackupFileName.equals(mDataFileName)) {
-            if (!FileUtils.copy(mDataFileName, localBackupFileName))
+        if (!backupFileName.equals(mDataFileName)) {
+            if (!FileUtils.copy(mDataFileName, backupFileName))
                 return null;
         }
 
         //archive file
-        return ZipFileUtils.zipFile(getLocalBackupFolderName(), mLocalBackupFileName);
+        return ZipFileUtils.zipFile(getBackupFolderName(), mBackupFileName);
     }
 
     /**
-     * Restores backup from local archive
+     * Restores backup from archive
      * @return restored file name if successful
      */
-    public String restoreLocalBackup() {
-        String localBackupFileName = getLocalBackupFileName();
+    public String restoreBackup() {
+        String backupFileName = getBackupFileName();
 
         //check backup availability
-        File zipFile = new File(getLocalBackupZIPFileName());
+        File zipFile = new File(getBackupZIPFileName());
         if (!zipFile.exists())
             return null;
 
         //extract backup
-        if (!ZipFileUtils.unZipFile(getLocalBackupFolderName(), ZipFileUtils.getZipFileName(mLocalBackupFileName)))
+        if (!ZipFileUtils.unZipFile(getBackupFolderName(), ZipFileUtils.getZipFileName(mBackupFileName)))
             return null;
 
         //check restored file availability
-        File file = new File(localBackupFileName);
+        File file = new File(backupFileName);
         if (!file.exists())
             return null;
 
-        if (!localBackupFileName.equals(mDataFileName)) {
+        if (!backupFileName.equals(mDataFileName)) {
             //replace source file
-            if (!FileUtils.copy(localBackupFileName, mDataFileName))
+            if (!FileUtils.copy(backupFileName, mDataFileName))
                 return null;
 
             //delete and ignore any errors
             file.delete();
         }
 
-        return localBackupFileName;
+        return backupFileName;
     }
 
     /**
@@ -116,8 +117,8 @@ public class BackupUtils {
      */
     public String createRollingLocalBackup() {
         //get file names
-        String fileName = getLocalBackupFileName();
-        String zipFileName = getLocalBackupZIPFileName();
+        String fileName = getBackupFileName();
+        String zipFileName = getBackupZIPFileName();
 
         //roll copies of data: first try rename, then copy
         if (!FileUtils.renameCopies(zipFileName))
@@ -135,11 +136,11 @@ public class BackupUtils {
     }
 
     /**
-     * Returns backup files from local backup folder
+     * Returns backup files from backup folder
      * @return File list
      */
-    public File[] getLocalBackupFiles() {
-        File folder = new File(getLocalBackupFolderName());
+    public File[] getBackupFiles() {
+        File folder = new File(getBackupFolderName());
         return folder.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {

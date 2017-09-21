@@ -19,7 +19,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     public void testBackupFiles() {
         BackupUtils backupUtils = new BackupUtils("test", "VioletNoteBackup", "test");
-        File[] backupFiles = backupUtils.getLocalBackupFiles();
+        File[] backupFiles = backupUtils.getBackupFiles();
 
         for (File f : backupFiles)
             Log.d("testBackupFiles", f.getName());

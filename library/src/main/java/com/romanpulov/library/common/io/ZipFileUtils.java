@@ -20,8 +20,9 @@ public class ZipFileUtils {
 
     public static String getZipFileName(String fileName){
         int extensionPos = fileName.lastIndexOf(".");
+        int pathPos = fileName.lastIndexOf(File.separator);
 
-        if (extensionPos == -1)
+        if ((extensionPos == -1) || (pathPos > extensionPos))
             return fileName + ZIP_EXT;
         else
             return fileName.substring(0, extensionPos) + ZIP_EXT;
