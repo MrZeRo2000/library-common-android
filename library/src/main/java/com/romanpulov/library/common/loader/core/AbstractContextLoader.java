@@ -7,14 +7,11 @@ import android.content.Context;
  * Created by romanpulov on 06.09.2017.
  */
 
-public abstract class AbstractContextLoader implements Loader {
-
+public abstract class AbstractContextLoader extends AbstractLoader {
     protected final Context mContext;
 
     public AbstractContextLoader(Context context) {
         mContext = context;
     }
-
-    public abstract void load() throws Exception;
 
 }
