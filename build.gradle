@@ -14,14 +14,14 @@ buildscript {
         http://brianattwell.com/distributing-android-libs-via-jcenter/
         */
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
 
 allprojects {
     repositories {
         google()
-        jcenter { url "http://jcenter.bintray.com/"}
+        jcenter()
     }
 }
 
