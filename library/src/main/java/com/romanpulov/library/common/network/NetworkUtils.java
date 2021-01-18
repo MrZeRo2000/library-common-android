@@ -29,7 +29,6 @@ public final class NetworkUtils {
      * @param hostName host name to check
      * @return flag if host is reachable
      */
-    @SuppressWarnings("unused")
     public static boolean isInternetHostAvailable(String hostName) {
         try {
             return InetAddress.getByName(hostName).isReachable(HOST_CHECK_TIMEOUT);
