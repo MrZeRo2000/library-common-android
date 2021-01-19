@@ -8,7 +8,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
-        versionName "1.2.1"
+        versionName "1.2.2"
     }
     buildTypes {
         release {
@@ -37,7 +37,7 @@ ext {
     artifact = 'library'
 
     libraryDescription = 'Roman Pulov common library for Android'
-    libraryVersion = '1.2.1'
+    libraryVersion = '1.2.2'
 
     developerId = 'romanpulov'
     developerName = 'Roman Pulov'

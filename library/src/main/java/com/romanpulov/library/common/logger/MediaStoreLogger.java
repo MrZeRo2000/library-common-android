@@ -14,17 +14,17 @@ import java.io.OutputStream;
 public class MediaStoreLogger extends AbstractLogger {
     private final Context mContext;
     private final String mFolderName;
-    private final String mFileName;
 
     private final String mMediaStoreVolumeExternalName;
     private final String mMediaStoreRelativePathName;
 
     private Uri mContentUriWithId;
 
-    public MediaStoreLogger(Context mContext, String mFolderName, String mFileName) {
-        this.mContext = mContext;
-        this.mFolderName = mFolderName;
-        this.mFileName = mFileName;
+    public MediaStoreLogger(Context context, String folderName, String fileName) {
+        super(fileName);
+
+        this.mContext = context;
+        this.mFolderName = folderName;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             mMediaStoreVolumeExternalName = MediaStore.VOLUME_EXTERNAL_PRIMARY;

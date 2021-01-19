@@ -17,6 +17,16 @@ public abstract class AbstractLogger {
 
     private final DateFormatter mDateFormatter = new DateFormatter();
 
+    protected final String mFileName;
+
+    public String getFileName() {
+        return mFileName;
+    }
+
+    public AbstractLogger(String mFileName) {
+        this.mFileName = mFileName;
+    }
+
     public abstract void open() throws IOException;
 
     public abstract void close();
