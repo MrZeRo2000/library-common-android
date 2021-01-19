@@ -71,7 +71,7 @@ public class MediaStoreLogger extends AbstractLogger {
                     ContentValues values = new ContentValues();
 
                     values.put(MediaStore.MediaColumns.DISPLAY_NAME, mFileName);       //file name
-                    values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");        //file extension, will automatically add to file
+                    // values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");        //file extension, will automatically add to file
                     values.put(mMediaStoreRelativePathName, mFolderName);     //end "/" is not mandatory
 
                     Uri uri = mContext.getContentResolver().insert(MediaStore.Files.getContentUri(mMediaStoreVolumeExternalName), values);      //important!

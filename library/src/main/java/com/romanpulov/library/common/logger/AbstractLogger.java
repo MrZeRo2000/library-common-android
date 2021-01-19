@@ -17,13 +17,20 @@ public abstract class AbstractLogger {
 
     private final DateFormatter mDateFormatter = new DateFormatter();
 
+    protected final String mFolderName;
+
+    public String getFolderName() {
+        return mFolderName;
+    }
+
     protected final String mFileName;
 
     public String getFileName() {
         return mFileName;
     }
 
-    public AbstractLogger(String mFileName) {
+    public AbstractLogger(String mFolderName, String mFileName) {
+        this.mFolderName = mFolderName;
         this.mFileName = mFileName;
     }
 

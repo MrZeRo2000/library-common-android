@@ -37,6 +37,18 @@ public class MediaStoreLoggerTest {
         );
 
         mediaStoreLogger.log("MyTag2", "File 2 First line");
+        mediaStoreLogger.log("MyTag2", "Another one");
+        mediaStoreLogger.log("MyTag2", "One more");
+
+        mediaStoreLogger = new MediaStoreLogger(
+                appContext,
+                Environment.DIRECTORY_DOCUMENTS +"/library-common-test-logger/log/",
+                "test_log_3.log"
+        );
+
+        mediaStoreLogger.log("MyTag3", "File 2 First line");
+        mediaStoreLogger.log("MyTag3", "Another one");
+        mediaStoreLogger.log("MyTag3", "One more");
 
     }
 }

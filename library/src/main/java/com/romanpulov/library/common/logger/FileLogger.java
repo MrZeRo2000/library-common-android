@@ -13,13 +13,13 @@ public class FileLogger extends AbstractLogger {
 
     private PrintWriter mPrintWriter;
 
-    public FileLogger(String fileName) {
-        super(fileName);
+    public FileLogger(String folderName, String fileName) {
+        super(folderName, fileName);
     }
 
     @Override
     public synchronized void open() throws IOException {
-        File logFile = new File(mFileName);
+        File logFile = new File(mFolderName + mFileName);
         mPrintWriter = null;
 
         FileOutputStream fileOutputStream = new FileOutputStream(logFile, true);
