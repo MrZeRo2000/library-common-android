@@ -5,8 +5,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.MediaStore;
+
+import com.romanpulov.library.common.media.MediaStoreUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,23 +15,11 @@ import java.io.OutputStream;
 public class MediaStoreLogger extends AbstractLogger {
     private final Context mContext;
 
-    private final String mMediaStoreVolumeExternalName;
-    private final String mMediaStoreRelativePathName;
-
     private Uri mContentUriWithId;
 
     public MediaStoreLogger(Context context, String folderName, String fileName) {
         super(folderName, fileName);
-
         this.mContext = context;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            mMediaStoreVolumeExternalName = MediaStore.VOLUME_EXTERNAL_PRIMARY;
-            mMediaStoreRelativePathName = MediaStore.MediaColumns.RELATIVE_PATH;
-        } else {
-            mMediaStoreVolumeExternalName = "external_primary";
-            mMediaStoreRelativePathName = "relative_path";
-        }
     }
 
     @Override
@@ -57,9 +46,9 @@ public class MediaStoreLogger extends AbstractLogger {
         OutputStream outputStream = null;
 
         if (mContentUriWithId == null) {
-            Uri contentUri = MediaStore.Files.getContentUri(mMediaStoreVolumeExternalName);
+            Uri contentUri = MediaStore.Files.getContentUri(MediaStoreUtils.MEDIA_STORE_VOLUME_EXTERNAL_NAME);
 
-            String selection = mMediaStoreRelativePathName + "=?" + " and " + MediaStore.MediaColumns.DISPLAY_NAME + "=?";
+            String selection = MediaStoreUtils.MEDIA_STORE_RELATIVE_PATH_NAME + "=?" + " and " + MediaStore.MediaColumns.DISPLAY_NAME + "=?";
 
             String[] selectionArgs = new String[]{mFolderName, mFileName};
 
@@ -70,9 +59,9 @@ public class MediaStoreLogger extends AbstractLogger {
 
                     values.put(MediaStore.MediaColumns.DISPLAY_NAME, mFileName);       //file name
                     // values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");        //file extension, will automatically add to file
-                    values.put(mMediaStoreRelativePathName, mFolderName);     //end "/" is not mandatory
+                    values.put(MediaStoreUtils.MEDIA_STORE_RELATIVE_PATH_NAME, mFolderName);     //end "/" is not mandatory
 
-                    Uri uri = mContext.getContentResolver().insert(MediaStore.Files.getContentUri(mMediaStoreVolumeExternalName), values);      //important!
+                    Uri uri = mContext.getContentResolver().insert(MediaStore.Files.getContentUri(MediaStoreUtils.MEDIA_STORE_VOLUME_EXTERNAL_NAME), values);      //important!
 
                     if (uri != null) {
                         try {
@@ -100,15 +89,14 @@ public class MediaStoreLogger extends AbstractLogger {
                 outputStream.write(message.getBytes());
             } catch (IOException e) {
                 e.printStackTrace();
-            }
-
-            try {
-                outputStream.flush();
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } finally {
+                try {
+                    outputStream.flush();
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
-
     }
 }

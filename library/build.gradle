@@ -19,7 +19,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.romanpulov:jutils-core:0.3.4'
     testImplementation 'junit:junit:4.13.1'
 }
 
