@@ -21,7 +21,7 @@ public class LoggerTest {
 
     @Test
     public void logTest() throws  Exception {
-        AbstractLogger logger = new FileLogger("../data/log.txt");
+        AbstractLogger logger = new FileLogger("../data/", "log.txt");
 
         logger.open();
 

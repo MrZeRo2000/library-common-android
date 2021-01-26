@@ -1,6 +1,6 @@
 package com.romanpulov.library.common;
 
-import com.romanpulov.library.common.io.ZipFileUtils;
+import com.romanpulov.jutilscore.io.ZipFileUtils;
 
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
  */
 
 public class ZipTest {
-    private static final String FILE_PATH = "../data/";
+    private static final String FILE_PATH = System.getProperty("java.io.tmpdir") + "library-common-file-utils-test-data/";
     private static final String FILE_NAME = "ziptest.txt";
     private static final String OLD_FILE_NAME = "ziptest.txt.old";
     private static final String ZIP_FILE_NAME = "ziptest.zip";
@@ -31,7 +31,12 @@ public class ZipTest {
         assertTrue(1==1);
     }
 
-    public void clearTestFile() throws Exception{
+    public void clearTestFile() throws Exception {
+        File filePath = new File(FILE_PATH);
+        if (!filePath.exists() && !filePath.mkdirs()) {
+            throw new RuntimeException("Error creating file path: " + filePath.getAbsolutePath());
+        }
+
         File f = new File(FILE_PATH + FILE_NAME);
         if (f.exists())
             assertTrue(f.delete());
@@ -46,6 +51,11 @@ public class ZipTest {
     }
 
     public void createTestFile() throws Exception{
+        File filePath = new File(FILE_PATH);
+        if (!filePath.exists() && !filePath.mkdirs()) {
+            throw new RuntimeException("Error creating file path: " + filePath.getAbsolutePath());
+        }
+
         String fileName = FILE_PATH + FILE_NAME;
         File f = new File(fileName);
         FileWriter fw = new FileWriter(f);

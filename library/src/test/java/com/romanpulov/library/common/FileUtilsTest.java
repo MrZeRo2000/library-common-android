@@ -1,6 +1,6 @@
 package com.romanpulov.library.common;
 
-import com.romanpulov.library.common.io.FileUtils;
+import com.romanpulov.jutilscore.io.FileUtils;
 
 import org.junit.Test;
 
@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
  */
 
 public class FileUtilsTest {
-    private static final String FILE_PATH = "../data/";
+    private static final String FILE_PATH = System.getProperty("java.io.tmpdir") + "library-common-file-utiles-test-data/";
     private static final String FILE_NAME = "filetest.txt";
 
     @Test
@@ -24,6 +24,11 @@ public class FileUtilsTest {
 
     @Test
     public void test2() throws Exception{
+        File filePath = new File(FILE_PATH);
+        if (!filePath.exists() && !filePath.mkdirs()) {
+            throw new RuntimeException("Error creating file path: " + filePath.getAbsolutePath());
+        }
+
         String fileName = FILE_PATH + FILE_NAME;
         String tempFileName = FileUtils.getTempFileName(fileName);
 
@@ -33,10 +38,9 @@ public class FileUtilsTest {
             f.delete();
 
         //create new
-        FileOutputStream outputStream = new FileOutputStream(f);
-        outputStream.write(32 + (int)(Math.random() * 50));
-        outputStream.flush();
-        outputStream.close();
+        try(FileOutputStream outputStream = new FileOutputStream(f)) {
+            outputStream.write(32 + (int)(Math.random() * 50));
+        };
 
         //save copies
         FileUtils.saveCopies(fileName);
