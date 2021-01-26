@@ -1,4 +1,4 @@
-package com.romanpulov.library.common.test;
+package com.romanpulov.library.common;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -12,8 +12,12 @@ import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.romanpulov.library.common.media.MediaStoreUtils;
+
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,6 +30,7 @@ import static org.junit.Assert.*;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 @RunWith(AndroidJUnit4.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ExampleInstrumentedTest {
     @Test
     public void useAppContext() throws Exception {
@@ -36,39 +41,38 @@ public class ExampleInstrumentedTest {
     }
 
     @Test
-    public void createNewFile() throws Exception {
+    public void test100_createNewFile() throws Exception {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
         ContentValues values = new ContentValues();
 
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, "test.txt");       //file name
-        values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");        //file extension, will automatically add to file
-        values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS + "/library-common-test/");     //end "/" is not mandatory
+        // values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");        //file extension, will automatically add to file
+        values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStoreUtils.MEDIA_STORE_ROOT_PATH + "/library-common-test/");     //end "/" is not mandatory
 
         Uri uri = appContext.getContentResolver().insert(MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), values);      //important!
 
-        OutputStream outputStream = appContext.getContentResolver().openOutputStream(uri, "rwt");
+        assert uri != null;
 
-        outputStream.write("This is a test data.".getBytes());
-
-        outputStream.close();
+        try(OutputStream outputStream = appContext.getContentResolver().openOutputStream(uri, "rwt")) {
+            outputStream.write("This is a test data.".getBytes());
+        }
 
     }
 
     @Test
-    public void writeToDocumentsTest() throws Exception {
+    public void test200_writeToDocumentsTest() throws Exception {
         String TAG = "writeToDocumentsTest";
 
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
         Log.d(TAG, "Started");
 
-
         Uri contentUri = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
 
         String selection = MediaStore.MediaColumns.RELATIVE_PATH + "=?" + " and " + MediaStore.MediaColumns.DISPLAY_NAME + "=?";
 
-        String[] selectionArgs = new String[]{Environment.DIRECTORY_DOCUMENTS + "/library-common-test/", "test.txt"};    //must include "/" in front and end
+        String[] selectionArgs = new String[]{MediaStoreUtils.MEDIA_STORE_ROOT_PATH + "/library-common-test/", "test.txt"};    //must include "/" in front and end
 
         Cursor cursor = appContext.getContentResolver().query(contentUri, null, selection, selectionArgs, null);
 
@@ -97,12 +101,12 @@ public class ExampleInstrumentedTest {
     }
 
     @Test
-    public void createOrAppendDocumentsTest() {
+    public void test300_createOrAppendDocumentsTest() {
         String TAG = "createOrAppendDocumentsTest";
 
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        String logFolder = Environment.DIRECTORY_DOCUMENTS + "/library-common-test/log/";
+        String logFolder = MediaStoreUtils.MEDIA_STORE_ROOT_PATH + "/library-common-test/";
         String logFileName = "log.txt";
 
         Uri contentUri = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
@@ -119,7 +123,7 @@ public class ExampleInstrumentedTest {
             ContentValues values = new ContentValues();
 
             values.put(MediaStore.MediaColumns.DISPLAY_NAME, logFileName);       //file name
-            values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");        //file extension, will automatically add to file
+            // values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");        //file extension, will automatically add to file
             values.put(MediaStore.MediaColumns.RELATIVE_PATH, logFolder);     //end "/" is not mandatory
 
             Uri uri = appContext.getContentResolver().insert(MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), values);      //important!
@@ -158,5 +162,16 @@ public class ExampleInstrumentedTest {
             }
         }
     }
+
+    @Test
+    public void test400() {
+        Uri contentUri = MediaStore.Files.getContentUri(MediaStoreUtils.MEDIA_STORE_VOLUME_EXTERNAL_NAME);
+        String selection = MediaStoreUtils.MEDIA_STORE_RELATIVE_PATH_NAME + "=?";
+        String[] selectionArgs = new String[]{MediaStoreUtils.MEDIA_STORE_ROOT_PATH + "/library-common-test/"};
+
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        appContext.getContentResolver().delete(contentUri, selection, selectionArgs);
+    }
+
 
 }
