@@ -68,11 +68,7 @@ public class MediaStoreBackupTest {
         Assert.assertTrue(dataFile.exists());
 
         // delete backup folder
-        appContext.getContentResolver().delete(
-                MediaStoreUtils.getMediaFilesContentUri(),
-                MediaStoreUtils.MEDIA_STORE_RELATIVE_PATH_NAME + "=?",
-                new String[]{backupFolderName}
-        );
+        MediaStoreUtils.deleteMediaFolder(appContext, backupFolderName);
 
         Assert.assertEquals(MediaStoreUtils.getDisplayNameList(appContext, backupFolderName).size(), 0);
 
@@ -122,5 +118,8 @@ public class MediaStoreBackupTest {
             ZipFileUtils.unZipStream(inputStream, outputStream);
             Assert.assertArrayEquals(b1, outputStream.toByteArray());
         }
+
+        // delete backup folder
+        MediaStoreUtils.deleteMediaFolder(appContext, backupFolderName);
     }
 }

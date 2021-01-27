@@ -46,6 +46,14 @@ public class MediaStoreUtils {
         return context.getContentResolver().insert(MediaStoreUtils.getMediaFilesContentUri(), values);
     }
 
+    public static int deleteMediaFolder(Context context, String folderName) {
+        return context.getContentResolver().delete(
+                MediaStoreUtils.getMediaFilesContentUri(),
+                MediaStoreUtils.MEDIA_STORE_RELATIVE_PATH_NAME + "=?",
+                new String[]{folderName}
+        );
+    }
+
     public static Cursor queryMediaFolder(Context context, String folderName) {
         return context.getContentResolver().query(
                 MediaStore.Files.getContentUri(MediaStoreUtils.MEDIA_STORE_VOLUME_EXTERNAL_NAME),
