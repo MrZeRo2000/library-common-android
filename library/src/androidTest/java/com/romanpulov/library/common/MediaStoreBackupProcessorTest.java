@@ -34,8 +34,8 @@ public class MediaStoreBackupProcessorTest {
     public void test100_createSingleBackup() throws Exception {
         File dataFile = new File(appContext.getFilesDir(), dataFileName);
 
-        if (dataFile.exists()) {
-            dataFile.delete();
+        if (dataFile.exists() && !dataFile.delete()) {
+            throw new RuntimeException("Error deleting existing file:" + dataFile.getAbsolutePath());
         }
 
         // generate and write random bytes file
