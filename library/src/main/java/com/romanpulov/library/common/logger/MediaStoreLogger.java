@@ -48,7 +48,7 @@ public class MediaStoreLogger extends AbstractLogger {
         if (mContentUriWithId == null) {
             Uri contentUri = MediaStore.Files.getContentUri(MediaStoreUtils.MEDIA_STORE_VOLUME_EXTERNAL_NAME);
 
-            String selection = MediaStoreUtils.MEDIA_STORE_RELATIVE_PATH_NAME + "=?" + " and " + MediaStore.MediaColumns.DISPLAY_NAME + "=?";
+            String selection = MediaStoreUtils.MEDIA_STORE_RELATIVE_PATH_NAME + "=?" + " and " + MediaStoreUtils.MEDIA_STORE_DISPLAY_NAME + "=?";
 
             String[] selectionArgs = new String[]{mFolderName, mFileName};
 
