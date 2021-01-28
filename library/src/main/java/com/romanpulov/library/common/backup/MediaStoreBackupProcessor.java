@@ -6,11 +6,15 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 
+import com.romanpulov.jutilscore.io.FileUtils;
 import com.romanpulov.jutilscore.io.ZipFileUtils;
 import com.romanpulov.jutilscore.storage.BackupProcessor;
 import com.romanpulov.library.common.media.MediaStoreUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,9 +36,10 @@ public class MediaStoreBackupProcessor implements BackupProcessor {
     public String createSingleBackup() {
         Uri uri = null;
 
-        try (Cursor cursor = MediaStoreUtils.queryMediaFile(mContext, mBackupFolderName, mBackupFileName)) {
+        String zipFileName  = ZipFileUtils.getZipFileName(mBackupFileName);
+        try (Cursor cursor = MediaStoreUtils.queryMediaFile(mContext, mBackupFolderName, zipFileName)) {
             if (cursor == null || cursor.getCount() == 0) {
-                uri = MediaStoreUtils.insertMediaFile(mContext, mBackupFolderName, mBackupFileName);
+                uri = MediaStoreUtils.insertMediaFile(mContext, mBackupFolderName, zipFileName);
 
             } else if (cursor.moveToNext()) {
                 long id = cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
@@ -70,7 +75,42 @@ public class MediaStoreBackupProcessor implements BackupProcessor {
 
     @Override
     public String restoreBackup() {
-        return null;
+        String zipFileName = ZipFileUtils.getZipFileName(mBackupFileName);
+        Uri backupFileUri = MediaStoreUtils.queryFirstMediaFileUri(mContext, mBackupFolderName, zipFileName);
+
+        if (backupFileUri == null) {
+            return null;
+        }
+
+        File tempFile = null;
+
+        try {
+            tempFile = File.createTempFile(mBackupFileName, "backup", mContext.getCacheDir());
+
+            try (
+                    InputStream inputStream = mContext.getContentResolver().openInputStream(backupFileUri);
+                    OutputStream outputStream = new FileOutputStream(tempFile);
+            ) {
+                if (inputStream != null) {
+                    ZipFileUtils.unZipStream(inputStream, outputStream);
+                } else {
+                    throw new IOException("Error unzipping stream");
+                }
+            }
+
+            if (!FileUtils.copy(tempFile.getAbsolutePath(), mDataFileName)) {
+                throw new IOException("Error copying from " + tempFile.getAbsolutePath() + " to " + mDataFileName);
+            }
+
+            return mDataFileName;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (tempFile != null && tempFile.exists()) {
+                boolean deleteResult = tempFile.delete();
+            }
+        }
     }
 
     @Override

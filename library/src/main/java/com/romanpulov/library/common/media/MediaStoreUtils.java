@@ -11,7 +11,9 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MediaStoreUtils {
     public static final String MEDIA_STORE_VOLUME_EXTERNAL_NAME;
@@ -98,4 +100,21 @@ public class MediaStoreUtils {
 
         return displayNameList;
     }
+
+    public static Map<String, Uri> getDisplayNameUriList(Context context, String folderName) {
+        Map<String, Uri> displayNameUriList = new HashMap<>();
+
+        try (Cursor cursor = queryMediaFolder(context, folderName)
+        ) {
+            while (cursor != null && cursor.moveToNext()) {
+                long id = cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+                String displayName = cursor.getString(cursor.getColumnIndex(MediaStoreUtils.MEDIA_STORE_DISPLAY_NAME));
+                Uri uri = ContentUris.withAppendedId(MediaStoreUtils.getMediaFilesContentUri(), id);
+                displayNameUriList.put(displayName, uri);
+            }
+        }
+
+        return displayNameUriList;
+    }
+
 }

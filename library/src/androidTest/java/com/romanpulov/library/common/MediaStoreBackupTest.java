@@ -119,6 +119,9 @@ public class MediaStoreBackupTest {
             Assert.assertArrayEquals(b1, outputStream.toByteArray());
         }
 
+        //appContext.getCacheDir()
+        File tempFile = File.createTempFile("aaa", "bbb", appContext.getCacheDir());
+
         // delete backup folder
         MediaStoreUtils.deleteMediaFolder(appContext, backupFolderName);
     }
