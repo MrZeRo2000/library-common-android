@@ -94,16 +94,16 @@ public class MediaStoreBackupProcessor implements BackupProcessor {
                 if (inputStream != null) {
                     ZipFileUtils.unZipStream(inputStream, outputStream);
                 } else {
-                    throw new IOException("Error unzipping stream");
+                    throw new MediaStoreBackupException("Error unzipping stream");
                 }
             }
 
             if (!FileUtils.copy(tempFile.getAbsolutePath(), mDataFileName)) {
-                throw new IOException("Error copying from " + tempFile.getAbsolutePath() + " to " + mDataFileName);
+                throw new MediaStoreBackupException("Error copying from " + tempFile.getAbsolutePath() + " to " + mDataFileName);
             }
 
             return mDataFileName;
-        } catch (IOException e) {
+        } catch (IOException | MediaStoreBackupException e) {
             e.printStackTrace();
             return null;
         } finally {
