@@ -18,7 +18,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class MediaStoreBackupProcessor implements BackupProcessor {
     private final Context mContext;
@@ -70,7 +72,51 @@ public class MediaStoreBackupProcessor implements BackupProcessor {
 
     @Override
     public String createRollingBackup() {
-        return null;
+        final Map<String, Uri> displayNameUriList = MediaStoreUtils.getDisplayNameUriList(mContext, mBackupFolderName);
+
+        if (displayNameUriList.isEmpty()) {
+            return null;
+        }
+
+        final Collection<String> fileNameList = displayNameUriList.keySet();
+
+        boolean processListCopiesResult = FileUtils.processListCopies(fileNameList, new FileUtils.FileProcessor() {
+            @Override
+            public boolean process(String fromFileName, String toFileName) {
+                Uri fromFileUri = displayNameUriList.get(fromFileName);
+
+                Uri toFileUri = displayNameUriList.get(toFileName);
+                if (toFileUri == null) {
+                    toFileUri = MediaStoreUtils.insertMediaFile(mContext, mBackupFolderName, toFileName);
+                }
+
+                if (fromFileUri == null || toFileUri == null) {
+                    return false;
+                }
+
+                try (
+                        InputStream inputStream = mContext.getContentResolver().openInputStream(fromFileUri);
+                        OutputStream outputStream = mContext.getContentResolver().openOutputStream(toFileUri, "wt")
+                    ){
+                    if (inputStream != null) {
+                        FileUtils.copyStream(inputStream, outputStream);
+                        return true;
+                    } else {
+                        return false;
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+        });
+
+        if (!processListCopiesResult) {
+            return null;
+        } else {
+            return createSingleBackup();
+        }
     }
 
     @Override

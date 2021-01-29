@@ -13,6 +13,7 @@ import com.romanpulov.library.common.media.MediaStoreUtils;
 
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -35,6 +36,7 @@ public class MediaStoreBackupProcessorTest {
     final String backupFileName = "data-file-to-backup";
 
     @Test
+    @Ignore("Temporary while test200 is being developed")
     public void test100_createSingleBackup() throws Exception {
         File dataFile = new File(appContext.getFilesDir(), dataFileName);
 
@@ -96,4 +98,43 @@ public class MediaStoreBackupProcessorTest {
         // cleanup after tests
         MediaStoreUtils.deleteMediaFolder(appContext, backupFolderName);
     }
+
+    @Test
+    public void test200_createRollingBackup() throws Exception {
+        File dataFile = new File(appContext.getFilesDir(), dataFileName);
+
+        if (dataFile.exists() && !dataFile.delete()) {
+            throw new RuntimeException("Error deleting existing file:" + dataFile.getAbsolutePath());
+        }
+
+        // generate and write random bytes file
+
+        byte[] b1 = new byte[2056];
+        new Random().nextBytes(b1);
+
+        Assert.assertFalse(dataFile.exists());
+
+        try (
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(b1);
+                FileOutputStream outputStream = new FileOutputStream(dataFile);
+        ) {
+            FileUtils.copyStream(inputStream, outputStream);
+        }
+
+        Assert.assertTrue(dataFile.exists());
+
+        MediaStoreBackupProcessor bp = new MediaStoreBackupProcessor(appContext, dataFile.getAbsolutePath(), backupFolderName, backupFileName);
+
+        MediaStoreUtils.deleteMediaFolder(appContext, backupFolderName);
+
+        Assert.assertNull(bp.createRollingBackup());
+
+        //create and check if backup is created
+        Assert.assertEquals(MediaStoreUtils.getDisplayNameList(appContext, backupFolderName).size(), 0);
+        Assert.assertEquals(backupFileName, bp.createSingleBackup());
+        Assert.assertEquals(MediaStoreUtils.getDisplayNameList(appContext, backupFolderName).size(), 1);
+
+        Assert.assertNotNull(bp.createRollingBackup());
+    }
+
 }
