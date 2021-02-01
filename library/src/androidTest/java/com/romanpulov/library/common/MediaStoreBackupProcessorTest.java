@@ -1,6 +1,7 @@
 package com.romanpulov.library.common;
 
 import android.content.Context;
+import android.os.Build;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -101,40 +102,86 @@ public class MediaStoreBackupProcessorTest {
 
     @Test
     public void test200_createRollingBackup() throws Exception {
-        File dataFile = new File(appContext.getFilesDir(), dataFileName);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            File dataFile = new File(appContext.getFilesDir(), dataFileName);
 
-        if (dataFile.exists() && !dataFile.delete()) {
-            throw new RuntimeException("Error deleting existing file:" + dataFile.getAbsolutePath());
+            if (dataFile.exists() && !dataFile.delete()) {
+                throw new RuntimeException("Error deleting existing file:" + dataFile.getAbsolutePath());
+            }
+
+            // generate and write random bytes file
+
+            byte[] b1 = new byte[2056];
+            new Random().nextBytes(b1);
+
+            Assert.assertFalse(dataFile.exists());
+
+            try (
+                    ByteArrayInputStream inputStream = new ByteArrayInputStream(b1);
+                    FileOutputStream outputStream = new FileOutputStream(dataFile);
+            ) {
+                FileUtils.copyStream(inputStream, outputStream);
+            }
+
+            Assert.assertTrue(dataFile.exists());
+
+            MediaStoreBackupProcessor bp = new MediaStoreBackupProcessor(appContext, dataFile.getAbsolutePath(), backupFolderName, backupFileName);
+
+            MediaStoreUtils.deleteMediaFolder(appContext, backupFolderName);
+
+            Assert.assertNotNull(bp.createRollingBackup());
+
+            //create and check if backup is created
+            Assert.assertEquals(MediaStoreUtils.getDisplayNameList(appContext, backupFolderName).size(), 1);
+
+            // generate and write random bytes file 2
+
+            byte[] b2 = new byte[3600];
+            new Random().nextBytes(b2);
+
+            try (
+                    ByteArrayInputStream inputStream = new ByteArrayInputStream(b2);
+                    FileOutputStream outputStream = new FileOutputStream(dataFile);
+            ) {
+                FileUtils.copyStream(inputStream, outputStream);
+            }
+
+            Assert.assertNotNull(bp.createRollingBackup());
+            Assert.assertEquals(MediaStoreUtils.getDisplayNameList(appContext, backupFolderName).size(), 2);
+
+            // generate and write random bytes file 3
+
+            byte[] b3 = new byte[5555];
+            new Random().nextBytes(b3);
+
+            try (
+                    ByteArrayInputStream inputStream = new ByteArrayInputStream(b3);
+                    FileOutputStream outputStream = new FileOutputStream(dataFile);
+            ) {
+                FileUtils.copyStream(inputStream, outputStream);
+            }
+
+            Assert.assertNotNull(bp.createRollingBackup());
+
+            // restore last backup
+            if (dataFile.exists() && !dataFile.delete()) {
+                throw new RuntimeException("Error deleting existing file:" + dataFile.getAbsolutePath());
+            }
+
+            // restore
+            Assert.assertNotNull(bp.restoreBackup());
+            Assert.assertTrue(dataFile.exists());
+
+            // check data identity
+            try (InputStream inputStream = new FileInputStream(dataFile);
+                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                FileUtils.copyStream(inputStream, outputStream);
+                Assert.assertArrayEquals(b3, outputStream.toByteArray());
+            }
+
+            // cleanup after tests
+            MediaStoreUtils.deleteMediaFolder(appContext, backupFolderName);
         }
-
-        // generate and write random bytes file
-
-        byte[] b1 = new byte[2056];
-        new Random().nextBytes(b1);
-
-        Assert.assertFalse(dataFile.exists());
-
-        try (
-                ByteArrayInputStream inputStream = new ByteArrayInputStream(b1);
-                FileOutputStream outputStream = new FileOutputStream(dataFile);
-        ) {
-            FileUtils.copyStream(inputStream, outputStream);
-        }
-
-        Assert.assertTrue(dataFile.exists());
-
-        MediaStoreBackupProcessor bp = new MediaStoreBackupProcessor(appContext, dataFile.getAbsolutePath(), backupFolderName, backupFileName);
-
-        MediaStoreUtils.deleteMediaFolder(appContext, backupFolderName);
-
-        Assert.assertNull(bp.createRollingBackup());
-
-        //create and check if backup is created
-        Assert.assertEquals(MediaStoreUtils.getDisplayNameList(appContext, backupFolderName).size(), 0);
-        Assert.assertEquals(backupFileName, bp.createSingleBackup());
-        Assert.assertEquals(MediaStoreUtils.getDisplayNameList(appContext, backupFolderName).size(), 1);
-
-        Assert.assertNotNull(bp.createRollingBackup());
     }
 
 }

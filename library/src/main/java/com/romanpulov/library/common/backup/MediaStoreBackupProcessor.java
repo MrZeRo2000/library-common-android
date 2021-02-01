@@ -75,7 +75,7 @@ public class MediaStoreBackupProcessor implements BackupProcessor {
         final Map<String, Uri> displayNameUriList = MediaStoreUtils.getDisplayNameUriList(mContext, mBackupFolderName);
 
         if (displayNameUriList.isEmpty()) {
-            return null;
+            return createSingleBackup();
         }
 
         final Collection<String> fileNameList = displayNameUriList.keySet();

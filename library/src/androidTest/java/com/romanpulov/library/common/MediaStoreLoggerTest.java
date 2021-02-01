@@ -3,6 +3,7 @@ package com.romanpulov.library.common;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -70,37 +71,41 @@ public class MediaStoreLoggerTest {
 
     @Test
     public void test200() {
-        Uri contentUri = MediaStore.Files.getContentUri(MediaStoreUtils.MEDIA_STORE_VOLUME_EXTERNAL_NAME);
-        String selection = MediaStoreUtils.MEDIA_STORE_RELATIVE_PATH_NAME + "=?";
-        String[] selectionArgs = new String[]{Environment.DIRECTORY_DOWNLOADS +"/library-common-test-logger/log/"};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Uri contentUri = MediaStore.Files.getContentUri(MediaStoreUtils.MEDIA_STORE_VOLUME_EXTERNAL_NAME);
+            String selection = MediaStoreUtils.MEDIA_STORE_RELATIVE_PATH_NAME + "=?";
+            String[] selectionArgs = new String[]{Environment.DIRECTORY_DOWNLOADS + "/library-common-test-logger/log/"};
 
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+            Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        List<String> displayNameList = new ArrayList<>();
+            List<String> displayNameList = new ArrayList<>();
 
-        try (Cursor cursor = appContext.getContentResolver().query(contentUri, null, selection, selectionArgs, null)) {
-            Assert.assertNotNull(cursor);
-            Assert.assertThat(cursor.getCount(), greaterThan(0));
+            try (Cursor cursor = appContext.getContentResolver().query(contentUri, null, selection, selectionArgs, null)) {
+                Assert.assertNotNull(cursor);
+                Assert.assertThat(cursor.getCount(), greaterThan(0));
 
-            while (cursor.moveToNext()) {
-                String displayName = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME));
-                displayNameList.add(displayName);
-                Log.d("MediaStoreLoggerTest test200", "DisplayName: " + displayName);
+                while (cursor.moveToNext()) {
+                    String displayName = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME));
+                    displayNameList.add(displayName);
+                    Log.d("MediaStoreLoggerTest test200", "DisplayName: " + displayName);
+                }
             }
-        }
 
-        Assert.assertTrue(displayNameList.contains("test_log.txt"));
-        Assert.assertTrue(displayNameList.contains("test_log_2.txt"));
-        Assert.assertTrue(displayNameList.contains("test_log_3.log"));
+            Assert.assertTrue(displayNameList.contains("test_log.txt"));
+            Assert.assertTrue(displayNameList.contains("test_log_2.txt"));
+            Assert.assertTrue(displayNameList.contains("test_log_3.log"));
+        }
     }
 
     @Test
     public void test300() {
-        Uri contentUri = MediaStore.Files.getContentUri(MediaStoreUtils.MEDIA_STORE_VOLUME_EXTERNAL_NAME);
-        String selection = MediaStoreUtils.MEDIA_STORE_RELATIVE_PATH_NAME + "=?";
-        String[] selectionArgs = new String[]{Environment.DIRECTORY_DOWNLOADS +"/library-common-test-logger/log/"};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Uri contentUri = MediaStore.Files.getContentUri(MediaStoreUtils.MEDIA_STORE_VOLUME_EXTERNAL_NAME);
+            String selection = MediaStoreUtils.MEDIA_STORE_RELATIVE_PATH_NAME + "=?";
+            String[] selectionArgs = new String[]{Environment.DIRECTORY_DOWNLOADS + "/library-common-test-logger/log/"};
 
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        appContext.getContentResolver().delete(contentUri, selection, selectionArgs);
+            Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+            appContext.getContentResolver().delete(contentUri, selection, selectionArgs);
+        }
     }
 }
