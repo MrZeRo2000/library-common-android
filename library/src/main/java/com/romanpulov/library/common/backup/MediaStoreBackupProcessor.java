@@ -163,4 +163,14 @@ public class MediaStoreBackupProcessor implements BackupProcessor {
     public List<String> getBackupFileNames() {
         return MediaStoreUtils.getDisplayNameList(mContext, mBackupFolderName);
     }
+
+    @Override
+    public InputStream createBackupInputStream(String backupFileName) throws IOException {
+        Uri uri = MediaStoreUtils.getDisplayNameUriList(mContext, mBackupFolderName).get(backupFileName);
+        if (uri != null) {
+            return mContext.getContentResolver().openInputStream(uri);
+        } else {
+            return null;
+        }
+    }
 }

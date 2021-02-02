@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Random;
 
 @RunWith(AndroidJUnit4.class)
@@ -178,6 +179,25 @@ public class MediaStoreBackupProcessorTest {
                 FileUtils.copyStream(inputStream, outputStream);
                 Assert.assertArrayEquals(b3, outputStream.toByteArray());
             }
+
+            File fo = new File(appContext.getCacheDir(), "fo");
+            if (fo.exists() && !fo.delete()) {
+                throw new RuntimeException("Error deleting existing file:" + fo.getAbsolutePath());
+            }
+            Assert.assertFalse(fo.exists());
+
+            try (InputStream inputStream = bp.createBackupInputStream(ZipFileUtils.getZipFileName(backupFileName));
+            OutputStream outputStream = new FileOutputStream(fo)) {
+                Assert.assertNotNull(inputStream);
+                FileUtils.copyStream(inputStream, outputStream);
+            }
+
+            Assert.assertTrue(fo.exists());
+
+            if (fo.exists() && !fo.delete()) {
+                throw new RuntimeException("Error deleting existing file:" + fo.getAbsolutePath());
+            }
+            Assert.assertFalse(fo.exists());
 
             // cleanup after tests
             MediaStoreUtils.deleteMediaFolder(appContext, backupFolderName);
