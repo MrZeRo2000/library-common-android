@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.util.List;
 
 public class DBBackupManager {
+    private final Context mContext;
     // backup folder name
     private final String mLocalBackupFolderName;
     // database backup file name
@@ -23,22 +24,27 @@ public class DBBackupManager {
     // database controller
     private final DBController mDBController;
 
-    public DBBackupManager(String mLocalBackupFolderName, String mLocalBackupDBFileName, DBController mDBController) {
-        this.mLocalBackupFolderName = mLocalBackupFolderName;
-        this.mLocalBackupDBFileName = mLocalBackupDBFileName;
-        this.mDBController = mDBController;
+    public DBBackupManager(
+            Context context,
+            String localBackupFolderName,
+            String localBackupDBFileName,
+            DBController dbController
+    ) {
+        this.mContext = context;
+        this.mLocalBackupFolderName = localBackupFolderName;
+        this.mLocalBackupDBFileName = localBackupDBFileName;
+        this.mDBController = dbController;
     }
 
     /**
      * Restores backup from a temporary file
-     * @param context Context to create BackupProcessor
      * @param path File path to restore
      * @return success flag
      */
-    public boolean restoreFromBackupPath(@NonNull Context context, String path) {
+    public boolean restoreFromBackupPath(String path) {
         File file = new File(path);
         if (file.exists()) {
-            String restoreResult = restorePathBackup(context, file.getParent());
+            String restoreResult = restorePathBackup(file.getParent());
 
             return  restoreResult != null;
         } else {
@@ -48,24 +54,23 @@ public class DBBackupManager {
 
     /**
      * Create internally BackupProcessor to support differences between Android versions
-     * @param context Context
      * @param dataFileName Data file name
      * @return BackupProcessor implementation
      */
     @NonNull
-    private BackupProcessor createBackupProcessor(@NonNull Context context, String dataFileName) {
+    private BackupProcessor createBackupProcessor(String dataFileName) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return new MediaStoreBackupProcessor(
-                    context,
+                    mContext,
                     dataFileName,
                     MediaStoreUtils.MEDIA_STORE_ROOT_PATH + '/' + mLocalBackupFolderName + '/',
                     mLocalBackupDBFileName
             );
         } else {
-            File f = context.getExternalFilesDir(mLocalBackupFolderName);
+            File f = mContext.getExternalFilesDir(mLocalBackupFolderName);
             if (f == null) {
                 // should not get here
-                f = new File(context.getFilesDir(), mLocalBackupFolderName);
+                f = new File(mContext.getFilesDir(), mLocalBackupFolderName);
             }
 
             return new FileBackupProcessor(
@@ -77,14 +82,12 @@ public class DBBackupManager {
     }
 
     /**
-     * Creates backup locally
-     * @param context Context
+     * Creates backup locally     *
      * @return backup creation result as file name, null if failed
      */
-    public String createLocalBackup(@NonNull Context context) {
+    public String createLocalBackup() {
         BackupProcessor bp = createBackupProcessor(
-                context,
-                context.getDatabasePath(mDBController.getDBName()).toString()
+                mContext.getDatabasePath(mDBController.getDBName()).toString()
         );
 
         mDBController.closeDB();
@@ -96,14 +99,12 @@ public class DBBackupManager {
 
     /**
      * Restores backup from local file via BackupProcessor
-     * @param context Context
      * @return restore result as file name, null if failed
      */
-    public String restoreLocalBackup(@NonNull Context context) {
+    public String restoreLocalBackup() {
 
         BackupProcessor bp = createBackupProcessor(
-                context,
-                context.getDatabasePath(mDBController.getDBName()).toString()
+                mContext.getDatabasePath(mDBController.getDBName()).toString()
         );
 
         mDBController.closeDB();
@@ -117,14 +118,13 @@ public class DBBackupManager {
 
     /**
      * Restores backup from local file via FileBackupProcessor
-     * @param context Context
      * @param restorePath Path to restore
      * @return restore result as file name, null if failed
      */
-    public String restorePathBackup(@NonNull Context context, String restorePath) {
+    public String restorePathBackup(String restorePath) {
 
         BackupProcessor bp =  new FileBackupProcessor(
-                context.getDatabasePath(mDBController.getDBName()).toString(),
+                mContext.getDatabasePath(mDBController.getDBName()).toString(),
                 restorePath,
                 mLocalBackupDBFileName
         );
@@ -140,21 +140,19 @@ public class DBBackupManager {
 
     /**
      * Returns database backup file names
-     * @param context Context
      * @return File name list
      */
-    public List<String> getDatabaseBackupFiles(@NonNull Context context) {
-        return createBackupProcessor(context, null).getBackupFileNames();
+    public List<String> getDatabaseBackupFiles() {
+        return createBackupProcessor(null).getBackupFileNames();
     }
 
     /**
      * Creates InputStream for backup
-     * @param context Context
      * @param backupFileName Backup file name
      * @return InputStream
      * @throws IOException if InputStream is not created
      */
-    public InputStream createBackupInputStream(@NonNull Context context, String backupFileName) throws IOException {
-        return createBackupProcessor(context, mLocalBackupDBFileName).createBackupInputStream(backupFileName);
+    public InputStream createBackupInputStream(String backupFileName) throws IOException {
+        return createBackupProcessor(mLocalBackupDBFileName).createBackupInputStream(backupFileName);
     }
 }
