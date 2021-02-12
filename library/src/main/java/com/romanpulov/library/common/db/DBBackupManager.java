@@ -23,6 +23,12 @@ public class DBBackupManager {
     private final String mLocalBackupDBFileName;
     // database controller
     private final DBController mDBController;
+    // last backup processor
+    private BackupProcessor mBP;
+
+    public BackupProcessor getBackupProcessor() {
+        return mBP;
+    }
 
     public DBBackupManager(
             Context context,
@@ -86,12 +92,12 @@ public class DBBackupManager {
      * @return backup creation result as file name, null if failed
      */
     public String createLocalBackup() {
-        BackupProcessor bp = createBackupProcessor(
+        mBP = createBackupProcessor(
                 mContext.getDatabasePath(mDBController.getDBName()).toString()
         );
 
         mDBController.closeDB();
-        String result = bp.createRollingBackup();
+        String result = mBP.createRollingBackup();
         mDBController.openDB();
 
         return result;
@@ -103,12 +109,12 @@ public class DBBackupManager {
      */
     public String restoreLocalBackup() {
 
-        BackupProcessor bp = createBackupProcessor(
+        mBP = createBackupProcessor(
                 mContext.getDatabasePath(mDBController.getDBName()).toString()
         );
 
         mDBController.closeDB();
-        String result = bp.restoreBackup();
+        String result = mBP.restoreBackup();
         mDBController.openDB();
 
         mDBController.dbDataChanged();
@@ -122,15 +128,14 @@ public class DBBackupManager {
      * @return restore result as file name, null if failed
      */
     public String restorePathBackup(String restorePath) {
-
-        BackupProcessor bp =  new FileBackupProcessor(
+        mBP =  new FileBackupProcessor(
                 mContext.getDatabasePath(mDBController.getDBName()).toString(),
                 restorePath,
                 mLocalBackupDBFileName
         );
 
         mDBController.closeDB();
-        String result = bp.restoreBackup();
+        String result = mBP.restoreBackup();
         mDBController.openDB();
 
         mDBController.dbDataChanged();

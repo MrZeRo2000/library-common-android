@@ -35,6 +35,21 @@ public class MediaStoreBackupProcessor implements BackupProcessor {
         this.mBackupFileName = mBackupFileName;
     }
 
+    @Override
+    public String getDataFileName() {
+        return mDataFileName;
+    }
+
+    @Override
+    public String getBackupFolderName() {
+        return mBackupFolderName;
+    }
+
+    @Override
+    public String getBackupFileName() {
+        return mBackupFileName;
+    }
+
     public String createSingleBackup() {
         Uri uri = null;
 
