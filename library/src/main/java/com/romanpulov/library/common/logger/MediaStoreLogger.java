@@ -71,11 +71,12 @@ public class MediaStoreLogger extends AbstractLogger {
                         }
                     }
                 } else if (cursor.moveToNext()) {
-                    long id = cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
-
-                    mContentUriWithId = ContentUris.withAppendedId(contentUri, id);
-
-                    outputStream = getOutputStreamFromContentUri();
+                    int columnIndex = cursor.getColumnIndex(MediaStore.MediaColumns._ID);
+                    if (columnIndex >= 0) {
+                        long id = cursor.getLong(columnIndex);
+                        mContentUriWithId = ContentUris.withAppendedId(contentUri, id);
+                        outputStream = getOutputStreamFromContentUri();
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();

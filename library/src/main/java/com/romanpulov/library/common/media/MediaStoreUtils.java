@@ -10,6 +10,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,38 +81,49 @@ public class MediaStoreUtils {
 
         try (Cursor cursor = MediaStoreUtils.queryMediaFile(context, folderName, fileName)) {
             if (cursor != null && cursor.moveToNext()) {
-                long id = cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
-                uri = ContentUris.withAppendedId(MediaStoreUtils.getMediaFilesContentUri(), id);
+                int columnIndex = cursor.getColumnIndex(MediaStore.MediaColumns._ID);
+                if (columnIndex >= 0) {
+                    long id = cursor.getLong(columnIndex);
+                    uri = ContentUris.withAppendedId(MediaStoreUtils.getMediaFilesContentUri(), id);
+                }
             }
         }
 
         return uri;
     }
 
-    public static List<String> getDisplayNameList(Context context, String folderName) {
+    public static @NonNull List<String> getDisplayNameList(Context context, String folderName) {
         List<String> displayNameList = new ArrayList<>();
 
         try (Cursor cursor = queryMediaFolder(context, folderName)
         ) {
             while (cursor != null && cursor.moveToNext()) {
-                String displayName = cursor.getString(cursor.getColumnIndex(MediaStoreUtils.MEDIA_STORE_DISPLAY_NAME));
-                displayNameList.add(displayName);
+                int columnIndex = cursor.getColumnIndex(MediaStoreUtils.MEDIA_STORE_DISPLAY_NAME);
+                if (columnIndex >= 0) {
+                    String displayName = cursor.getString(columnIndex);
+                    displayNameList.add(displayName);
+                }
             }
         }
 
         return displayNameList;
     }
 
-    public static Map<String, Uri> getDisplayNameUriList(Context context, String folderName) {
+    public static @NonNull Map<String, Uri> getDisplayNameUriList(Context context, String folderName) {
         Map<String, Uri> displayNameUriList = new HashMap<>();
 
         try (Cursor cursor = queryMediaFolder(context, folderName)
         ) {
             while (cursor != null && cursor.moveToNext()) {
-                long id = cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
-                String displayName = cursor.getString(cursor.getColumnIndex(MediaStoreUtils.MEDIA_STORE_DISPLAY_NAME));
-                Uri uri = ContentUris.withAppendedId(MediaStoreUtils.getMediaFilesContentUri(), id);
-                displayNameUriList.put(displayName, uri);
+                int idColumnIndex = cursor.getColumnIndex(MediaStore.MediaColumns._ID);
+                int mediaStoreDisplayNameColumnIndex =  cursor.getColumnIndex(MediaStoreUtils.MEDIA_STORE_DISPLAY_NAME);
+
+                if (idColumnIndex >= 0 && mediaStoreDisplayNameColumnIndex >= 0) {
+                    long id = cursor.getLong(idColumnIndex);
+                    String displayName = cursor.getString(mediaStoreDisplayNameColumnIndex);
+                    Uri uri = ContentUris.withAppendedId(MediaStoreUtils.getMediaFilesContentUri(), id);
+                    displayNameUriList.put(displayName, uri);
+                }
             }
         }
 

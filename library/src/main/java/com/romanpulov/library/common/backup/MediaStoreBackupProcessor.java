@@ -59,8 +59,11 @@ public class MediaStoreBackupProcessor implements BackupProcessor {
                 uri = MediaStoreUtils.insertMediaFile(mContext, mBackupFolderName, zipFileName);
 
             } else if (cursor.moveToNext()) {
-                long id = cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
-                uri = ContentUris.withAppendedId(MediaStoreUtils.getMediaFilesContentUri(), id);
+                int columnIndex = cursor.getColumnIndex(MediaStore.MediaColumns._ID);
+                if (columnIndex >= 0) {
+                    long id = cursor.getLong(columnIndex);
+                    uri = ContentUris.withAppendedId(MediaStoreUtils.getMediaFilesContentUri(), id);
+                }
             }
         }
 
