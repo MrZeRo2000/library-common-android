@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 
+import android.util.Log;
 import androidx.annotation.NonNull;
 
 import java.io.IOException;
@@ -67,7 +68,19 @@ public final class NetworkUtils {
      */
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
-        return connectivityManager != null && connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnected();
+        if (connectivityManager == null) {
+            return false;
+        } else {
+            Network network = connectivityManager.getActiveNetwork();
+            if (network == null) {
+                return false;
+            } else {
+                NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
+                return networkCapabilities != null &&
+                        networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                        networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+            }
+        }
     }
 
     /**
@@ -79,7 +92,7 @@ public final class NetworkUtils {
         try {
             return InetAddress.getByName(hostName).isReachable(HOST_CHECK_TIMEOUT);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("isInternetHostAvailable", e.toString(), e);
             return false;
         }
     }
