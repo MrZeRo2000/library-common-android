@@ -1,11 +1,15 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
+    namespace = "com.romanpulov.library.common.test"
+
     defaultConfig {
-        compileSdk 36
+        compileSdk 37
         applicationId "com.romanpulov.library.common.test"
         minSdkVersion 24
-        targetSdkVersion 36
+        targetSdkVersion 37
         versionCode 1
         versionName "1.0"
 
@@ -14,14 +18,13 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    namespace 'com.romanpulov.library.common.test'
 }
 
 dependencies {

@@ -6,19 +6,19 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.10.1'
+        classpath 'com.android.tools.build:gradle:9.1.1'
     }
 }
 
 allprojects {
     repositories {
         google()
-        mavenLocal()
         mavenCentral()
+        mavenLocal()
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+tasks.register('clean', Delete) {
+    delete rootProject.layout.buildDirectory
 }
 
